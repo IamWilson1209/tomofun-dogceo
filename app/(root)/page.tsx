@@ -27,8 +27,10 @@ export default async function Home({
       <section className="global_background relative">
         <BackgroundCarousel images={images} />
         <div className="relative w-full z-30 flex flex-col items-center justify-center">
-          <h1 className="text-5xl text-white font-extrabold">Dog Searcher</h1>
-          <p className="text-3xl text-white font-semibold mt-3">
+          <h1 className="text-5xl text-white font-extrabold sm:text-2xl">
+            Dog Searcher
+          </h1>
+          <p className="text-3xl text-white font-semibold mt-3 sm:text-lg">
             Search for your favorite dog
           </p>
           <SearchForm query={query} />

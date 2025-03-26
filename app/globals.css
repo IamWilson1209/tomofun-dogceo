@@ -33,7 +33,7 @@
     @apply text-white px-5 rounded-md flex justify-center items-center cursor-pointer;
   }
   .search_input {
-    @apply w-full h-auto outline-none flex-1 font-bold placeholder:text-black placeholder:text-[20px] text-black bg-transparent flex justify-center items-center;
+    @apply w-full h-auto outline-none flex-1 font-bold font-sans placeholder:text-black placeholder:text-[20px] sm:placeholder:text-[10px] text-black bg-transparent flex justify-center items-center;
   }
   .card_grid {
     @apply grid md:grid-cols-3 sm:grid-cols-2 gap-5;
