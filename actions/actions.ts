@@ -2,6 +2,7 @@
 
 import { breeds } from "@/data/breeds";
 import { parseServerActionResponse } from "@/utils/parseServerActionResponse";
+import { revalidateTag } from "next/cache";
 
 
 /* 取得輪播清單的所有圖片 */
@@ -69,16 +70,22 @@ export const getBreed = async (query?: string) => {
 }
 
 /* 根據breedName取得此Breed中random的50張image */
-export const getBreedImage = async (breedName: string) => {
+export const getBreedImage = async (breedName: string, forceRefresh: boolean = false) => {
   try {
     /* 轉成小寫 */
     const lowerCaseBreedName = breedName.toLowerCase();
+
+    /* 如果 forceRefresh 為 true，失效快取 */
+    const cacheTag = `breed-images-${lowerCaseBreedName}`;
+    if (forceRefresh) {
+      revalidateTag(cacheTag);
+    }
 
     /* 取得指定breed random 50 張images */
     const res = await fetch(`https://dog.ceo/api/breed/${lowerCaseBreedName}/images/random/50`, {
       cache: 'force-cache', // 強制使用快取，確保結果持久化
       next: {
-        tags: [`breed-images-${lowerCaseBreedName}`], // 添加標籤，以便未來手動失效
+        tags: [cacheTag], // 添加標籤，未來可以手動失效
       },
     })
 

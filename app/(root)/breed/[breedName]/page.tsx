@@ -2,6 +2,7 @@ import { getBreedImage } from '@/actions/actions';
 import BreedGallery from '@/comoponents/BreedGallery';
 import Link from 'next/link';
 import { Dog, PawPrint } from 'lucide-react';
+import RefreshButton from '@/comoponents/RefreshButton';
 
 const BreedPage = async ({
   params,
@@ -14,11 +15,11 @@ const BreedPage = async ({
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      {/* Navbar 區域  */}
+      {/* Navbar 區域 */}
       <nav className="fixed top-0 left-0 w-full bg-amber-400/70 shadow-lg z-10 transition-all duration-300">
-        <div className="flex flex-row justify-between items-center px-4 py-3 md:py-4 max-w-7xl mx-auto">
+        <div className="flex flex-row justify-between items-center px-4 py-3 md:py-4 max-w-7xl mx-auto w-full">
           {/* 左側按鈕 */}
-          <div className="flex-1 flex justify-start">
+          <div className="flex items-center">
             <button className="group relative">
               <Link href="/" className="flex flex-row items-center">
                 <p className="text-black text-lg md:text-xl font-semibold tracking-wide hover:text-gray-700 transition-colors duration-200 group-hover:scale-105 mr-2">
@@ -33,15 +34,17 @@ const BreedPage = async ({
           </div>
 
           {/* 中間標題 - 使用 margin auto 居中 */}
-          <div className="mx-auto flex flex-row items-center gap-2">
+          <div className="flex flex-row items-center gap-2 absolute left-1/2 transform -translate-x-1/2">
             {/* <Dog className="text-black" size={30} /> */}
             <h1 className="font-extrabold font-sans text-black text-xl md:text-2xl">
               {breedName}
             </h1>
           </div>
 
-          {/* 右側保留一個空的 flex-1 維持平衡 */}
-          <div className="flex-1"></div>
+          {/* 右側刷新按鈕 */}
+          <div className="flex items-center justify-end">
+            <RefreshButton breedName={breedName} />
+          </div>
         </div>
       </nav>
 
@@ -52,4 +55,5 @@ const BreedPage = async ({
     </div>
   );
 };
+
 export default BreedPage;
