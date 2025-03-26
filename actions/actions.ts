@@ -3,7 +3,9 @@
 import { breeds } from "@/data/breeds";
 import { parseServerActionResponse } from "@/utils/parseServerActionResponse";
 
-/* 取得指定條件的Breed */
+
+
+/* 根據Query取得Breed */
 export const getBreed = async (query?: string) => {
   try {
     /* 取得所有breed name */
@@ -17,7 +19,6 @@ export const getBreed = async (query?: string) => {
     }));
 
     /* 如果有query，條件篩選符合條件的 bread name */
-    // 如果有 query，篩選陣列
     if (query) {
       breedArray = breedArray.filter((breed) =>
         breed.name.toLowerCase().includes(query.toLowerCase())
@@ -42,7 +43,17 @@ export const getBreed = async (query?: string) => {
 export const getBreedImage = async (breedName: string) => {
   try {
     /* 取得指定breed random 50 張images */
-    const res = await fetch(`https://dog.ceo/api/breed/${breedName}/images/random/50`)
+    const res = await fetch(`https://dog.ceo/api/breed/${breedName}/images/random/50`, {
+      cache: 'force-cache', // 強制使用快取，確保結果持久化
+      next: {
+        tags: [`breed-images-${breedName}`], // 添加標籤，以便未來手動失效
+      },
+    })
+
+    if (!res.ok) {
+      throw new Error('Failed to fetch breed images');
+    }
+
     const data = await res.json();
     const images = data.message;
 

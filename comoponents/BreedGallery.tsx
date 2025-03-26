@@ -1,7 +1,10 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useMemo, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+
 const BreedGallery = ({
   images,
   breedName,
@@ -12,236 +15,181 @@ const BreedGallery = ({
   /* 選取的圖片 */
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  /* 輪播的索引 */
+  /* 輪播功能的index */
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  /* 修改：動態列數，預設 2 */
-  const [columnCount, setColumnCount] = useState(2);
+  /* 儲存佈局：哪些圖片是雙倍高度的index array */
+  const [doubleHeightIndices, setDoubleHeightIndices] = useState<number[]>([]);
 
-  /* 生成隨機高度 */
-  const getRandomHeight = () => {
-    const minHeight = 200;
-    const maxHeight = 500;
-    return Math.floor(Math.random() * (maxHeight - minHeight + 1)) + minHeight;
-  };
+  /* 觸發動畫的狀態，記錄前一個索引以判斷方向 */
+  const [prevIndex, setPrevIndex] = useState<number | null>(null);
 
-  /* useMemo 確保高度只在初次渲染時生成 */
-  const imageHeights = useMemo(() => {
-    return images.map(() => getRandomHeight()); // 返回想記憶的高度
-  }, [images]); // 依賴項不變，imageHeights會返回原本的結果
-
-  /* 修改：動態檢測螢幕寬度，同步 CSS 的 column-count */
+  /* 初始化時從 localStorage 載入佈局，或生成新佈局 */
   useEffect(() => {
-    const updateColumnCount = () => {
-      if (window.innerWidth >= 1024) {
-        setColumnCount(4);
-      } else if (window.innerWidth >= 768) {
-        setColumnCount(3);
-      } else {
-        setColumnCount(2);
+    const storedLayout = localStorage.getItem(`galleryLayout_${breedName}`);
+    if (storedLayout) {
+      /* 如果 localStorage 有儲存的佈局，直接使用 */
+      setDoubleHeightIndices(JSON.parse(storedLayout));
+    } else {
+      /* 若否，隨機生成雙倍高度圖片的索引（每 5 張隨機 1 張）*/
+      const newDoubleHeightIndices: number[] = [];
+      for (let i = 0; i < images.length; i += 5) {
+        const randomIndex =
+          i + Math.floor(Math.random() * Math.min(5, images.length - i));
+        newDoubleHeightIndices.push(randomIndex);
       }
-    };
+      /* 設定佈局狀態 */
+      setDoubleHeightIndices(newDoubleHeightIndices);
 
-    updateColumnCount(); // 初次設置
-    window.addEventListener('resize', updateColumnCount);
-    return () => window.removeEventListener('resize', updateColumnCount);
-  }, []);
-
-  // 修改：根據動態 columnCount 計算二維陣列
-  const grid = useMemo(() => {
-    const cols = [];
-    for (let i = 0; i < columnCount; i++) {
-      cols[i] = [];
+      /* 儲存到 localStorage */
+      localStorage.setItem(
+        `galleryLayout_${breedName}`,
+        JSON.stringify(newDoubleHeightIndices)
+      );
     }
-    images.forEach((image, index) => {
-      const col = index % columnCount;
-      cols[col].push(index);
-    });
-    return cols;
-  }, [images, columnCount]);
+  }, [images, breedName]);
 
-  // 修改：根據 index 查找當前位置
-  const getPosition = (index: number) => {
-    for (let col = 0; col < grid.length; col++) {
-      const row = grid[col].indexOf(index);
-      if (row !== -1) return { col, row };
-    }
-    return { col: 0, row: 0 };
-  };
-
-  /* 點擊圖片放大，同時更新index位置 */
+  /* 點擊圖片放大，更新index位置，重置動畫鍵值，確保初次點擊也有動畫 */
   const handleImageClick = (image: string, index: number) => {
     setSelectedImage(image);
     setCurrentIndex(index);
+    setPrevIndex(null); // 初次點擊時沒有前一個索引
   };
 
   /* 關閉放大的圖片 */
   const handleClose = () => {
     setSelectedImage(null);
+    setPrevIndex(null); // 關閉時重置 prevIndex
   };
 
-  /* 放大檢視時切換至上一張 */
-  // 修改：下一張圖片根據二維陣列移動
+  /* 放大檢視時切換至下一張 */
   const handleNextImage = () => {
-    const { col, row } = getPosition(currentIndex);
-    let nextCol = col + 1;
-    let nextRow = row;
-
-    // 如果超出當前行，跳到下一行的第一列
-    if (nextCol >= columnCount || !grid[nextCol][nextRow]) {
-      nextCol = 0;
-      nextRow = row + 1;
-    }
-
-    // 如果超出總行數，回到第一張
-    if (nextRow >= grid[0].length) {
-      nextCol = 0;
-      nextRow = 0;
-    }
-
-    const nextIndex = grid[nextCol][nextRow];
+    const nextIndex = (currentIndex + 1) % images.length;
+    setPrevIndex(currentIndex); // 記錄當前索引作為前一個索引
     setCurrentIndex(nextIndex);
     setSelectedImage(images[nextIndex]);
   };
 
-  // 修改：上一張圖片根據二維陣列移動
+  /* 放大檢視時切換至上一張 */
   const handlePrevImage = () => {
-    const { col, row } = getPosition(currentIndex);
-    let prevCol = col - 1;
-    let prevRow = row;
-
-    // 如果小於當前行，跳到上一行的最後一列
-    if (prevCol < 0) {
-      prevCol = columnCount - 1;
-      prevRow = row - 1;
-    }
-
-    // 如果超出總行數，回到最後一張
-    if (prevRow < 0) {
-      prevCol = columnCount - 1;
-      prevRow = grid[prevCol].length - 1;
-    }
-
-    const prevIndex = grid[prevCol][prevRow];
+    const prevIndex = (currentIndex - 1 + images.length) % images.length;
+    setPrevIndex(currentIndex); // 記錄當前索引作為前一個索引
     setCurrentIndex(prevIndex);
     setSelectedImage(images[prevIndex]);
   };
 
+  /* variants: 定義framer-motion的動畫變體 */
+  const imageVariants = {
+    /* 圖片初始狀態，從motion.div的custom參數傳方向過來，決定圖片從哪個方向進入 */
+    hidden: (direction: 'left' | 'right' | 'none') => ({
+      opacity: 0, // 初始透明度完全透明
+      x: direction === 'right' ? '100%' : direction === 'left' ? '-100%' : 0, // 進入時初始位置
+    }),
+    /* 圖片顯示時的狀態 */
+    visible: {
+      opacity: 1, // 完全不透明
+      x: 0, // 最終位置
+      /* hidden 到 visible 的過渡動畫 */
+      transition: {
+        duration: 0.5,
+        ease: 'easeInOut',
+      },
+    },
+    /* 圖片結束時的狀態，舊圖片在退出時滑出 */
+    exit: (direction: 'left' | 'right' | 'none') => ({
+      opacity: 0,
+      x: direction === 'right' ? '-100%' : direction === 'left' ? '100%' : 0, // 退出時結束位置
+      transition: {
+        duration: 0.5,
+        ease: 'easeInOut',
+      },
+    }),
+  };
+
+  /* 判斷左右滑動 */
+  const getDirection = () => {
+    if (prevIndex === null) return 'none'; // 初次點擊
+    if (prevIndex === 49 && currentIndex === 0) return 'right'; // 回到第一張
+    if (prevIndex === 0 && currentIndex === 49) return 'left'; // 回到最後一張
+    return currentIndex > prevIndex ? 'right' : 'left'; // 下一張或上一張
+  };
+
   return (
-    <div className="p-4">
-      {/* 類似Pinterest的瀑布流畫廊 */}
-      <div className="gallery-container">
+    <div className="p-1">
+      {/* 格狀畫廊 */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
         {images.map((image, index) => (
           <div
             key={image}
+            className={
+              /* 判斷是否為雙倍高度 */
+              doubleHeightIndices.includes(index)
+                ? 'row-span-2 relative cursor-pointer'
+                : 'relative cursor-pointer aspect-square'
+            }
             onClick={() => handleImageClick(image, index)}
-            className="gallery-item cursor-pointer mb-4 break-inside-avoid relative group" // 記得用group，才能用hover功能
           >
             <Image
               src={image}
-              alt={`${breedName}`}
-              width={0} // 設 0，讓寬度自適應容器
-              height={0} // 設 0，讓高度根據圖片比例自動調整
-              sizes="100vw" // 根據設備寬度選擇適當圖片尺寸，100vw 表示圖片可能佔據整個視窗寬度
-              style={{
-                width: '100%', // 寬度讓圖片填滿容器
-                height: 'auto', // 高度根據原始比例，e.g. index 0 如果超過 300px（例如 400px），會顯示為 400px
-                minHeight: `${imageHeights[index]}px`, // Advance，使用隨機高度
-                /* 
-                minHeight:
-                  index % 3 === 0 // 0, 3, 6: 設定最小高度300px
-                  ? '300px'
-                  : index % 2 === 0 // 如果條件一不成立，2, 4, ...: 設定最小高度200px
-                  ? '200px'
-                  : '250px', // 1、5、7...設定最小高度250px 
-                */
-              }}
-              className="rounded-lg object-cover group-hover:brightness-50 transition duration-300" // 讓圖片填滿容器並裁剪多餘部分
+              alt={`${breedName} ${index}`}
+              fill
+              className="object-cover rounded-sm hover:brightness-50 transition duration-300"
+              sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
             />
-            <div className="absolute inset-0 flex items-center justify-center text-white text-lg opacity-0 hover:opacity-100 transition duration-300">
-              {index}
-            </div>
           </div>
         ))}
       </div>
 
-      {/* 點擊放大顯示 */}
-      {/* 修改：放大模式現在包含導航按鈕 */}
+      {/* 放大檢視模式 */}
       {selectedImage && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
           onClick={handleClose}
         >
+          {/* 關閉按鈕 */}
+          <button
+            className="fixed top-4 right-4 text-white text-2xl bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition"
+            onClick={handleClose}
+          >
+            <X className="cursor-pointer" />
+          </button>
           <div
             className="relative max-w-[90vw] max-h-[90vh]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* 上一張按鈕 */}
             <button
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 bg-white bg-opacity-30 hover:bg-opacity-50 rounded-full p-2 z-10"
-              onClick={(e) => {
-                e.stopPropagation();
-                handlePrevImage();
-              }}
+              className="absolute left-1 top-1/2 -translate-y-1/2 -translate-x-12 bg-opacity-30 hover:bg-opacity-50 rounded-full p-2 transition"
+              onClick={handlePrevImage}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-8 w-8 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
+              <ChevronLeft size={80} className="cursor-pointer" />
             </button>
 
-            {/* 當前圖片 */}
-            <Image
-              src={selectedImage}
-              alt={`${breedName} selected`}
-              width={1200}
-              height={800}
-              className="object-contain max-w-[90vw] max-h-[90vh]"
-            />
+            {/* 當前圖片 - 修改：添加 key 並移除無用的 animate-gallery-right */}
+            <motion.div
+              key={currentIndex} // 使用 currentIndex 作為 key，確保每次切換重新渲染
+              custom={getDirection()} // 傳遞方向參數給 variants
+              variants={imageVariants} // 使用定義的動畫變體
+              initial="hidden" // 初始狀態
+              animate="visible" // 目標狀態
+              exit="exit" // 新增：退出動畫
+            >
+              {/* 當前圖片 */}
+              <Image
+                src={selectedImage}
+                alt={`${breedName} selected`}
+                width={1200}
+                height={800}
+                className="object-contain max-w-[90vw] max-h-[90vh] rounded-lg"
+              />
+            </motion.div>
 
             {/* 下一張按鈕 */}
             <button
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 bg-white bg-opacity-30 hover:bg-opacity-50 rounded-full p-2 z-10"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleNextImage();
-              }}
+              className="absolute right-1 top-1/2 -translate-y-1/2 translate-x-12 bg-opacity-30 hover:bg-opacity-50 rounded-full p-2 transition"
+              onClick={handleNextImage}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-8 w-8 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
-
-            {/* 關閉按鈕保持不變 */}
-            <button
-              className="absolute top-4 right-4 text-white text-2xl bg-black bg-opacity-50 rounded-full p-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleClose();
-              }}
-            >
-              ×
+              <ChevronRight size={80} className="cursor-pointer" />
             </button>
           </div>
         </div>

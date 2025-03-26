@@ -1,5 +1,6 @@
 import { getBreed } from '@/actions/actions';
 import BreedCard from '@/comoponents/BreedCard';
+import BackgroundCarousel from '@/comoponents/BackgroundCarousel';
 import SearchForm from '@/comoponents/SearchForm';
 
 /* 宣告Breed型別 */
@@ -16,16 +17,22 @@ export default async function Home({
 }) {
   const query = (await searchParams).query;
 
-  /*用server action取得指定搜尋條件的breed list*/
+  /* 用server action取得指定搜尋條件的breed list */
   const res = await getBreed(query);
   const breeds = res.data;
+  const images = breeds.map((breed: Breed) => breed.image);
 
   return (
     <>
-      <section className="global_background">
-        <h1 className="text-4xl text-black font-extrabold">狗狗蒐尋器</h1>
-        <p className="text-3xl text-black font-semibold mt-3">搜尋狗狗</p>
-        <SearchForm query={query} />
+      <section className="global_background relative">
+        <BackgroundCarousel images={images} />
+        <div className="relative w-full z-30 flex flex-col items-center justify-center">
+          <h1 className="text-5xl text-white font-extrabold">Dog Searcher</h1>
+          <p className="text-3xl text-white font-semibold mt-3">
+            Search for your favorite dog
+          </p>
+          <SearchForm query={query} />
+        </div>
       </section>
       <ul className="mt-5 card_grid pb-8">
         {breeds.map((breed: Breed) => (

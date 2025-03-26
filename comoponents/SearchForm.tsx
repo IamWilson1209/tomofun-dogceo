@@ -36,13 +36,13 @@ const SearchForm = ({ query }: { query?: string }) => {
         name="query"
         defaultValue={query}
         className="search_input"
-        placeholder="搜尋狗狗種類"
+        placeholder="Search for specific breed"
       />
-      <div className="">
+      <div className="flex flex-row gap-1">
         {/* 如果有輸入值，顯示清除按鈕 */}
         {query && <SearchFormReset />}
         <button type="submit" className="search_btn">
-          <Search />
+          <Search size={40} className="bg-black rounded-full p-2" />
         </button>
       </div>
     </Form>

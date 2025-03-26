@@ -21,62 +21,67 @@
 
 @layer utilities {
   .global_background {
-    @apply w-full bg-white min-h-[530px] flex flex-col justify-center items-center py-10 px-6;
+    @apply w-full min-h-[530px] flex flex-col justify-center items-center py-10 px-6 relative overflow-hidden;
   }
   .search_form {
-    @apply max-w-3xl w-full min-h-[80px] size-[50px] rounded-md bg-yellow-400 text-white mt-8 px-5 flex flex-row items-center;
+    @apply max-w-3xl w-full min-h-[80px] rounded-md bg-yellow-400/70 focus:border-black focus:border-2 text-white mt-8 px-5 flex flex-row items-center;
+    &:focus-within {
+      @apply ring-2 ring-yellow-600/90 shadow-lg shadow-yellow-400/60 bg-yellow-400/80;
+    }
   }
   .search_btn {
-    @apply text-black py-2 px-5 rounded-md flex justify-center items-center;
+    @apply text-white px-5 rounded-md flex justify-center items-center cursor-pointer;
   }
   .search_input {
-    @apply w-full h-auto outline-none flex-1 font-bold placeholder:text-black text-black flex justify-center items-center;
+    @apply w-full h-auto outline-none flex-1 font-bold placeholder:text-black placeholder:text-[20px] text-black bg-transparent flex justify-center items-center;
   }
   .card_grid {
     @apply grid md:grid-cols-3 sm:grid-cols-2 gap-5;
   }
 }
 
+@layer utilities {
+  .animate-gallery-right {
+    animation: slideRight 0.5s ease-in-out;
+  }
+
+  .animate-gallery-left {
+    animation: slideLeft 0.5s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideRight {
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes slideLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
 /* 畫廊樣式區 */
-.gallery-container {
-  column-count: 2; /* 預設2列 */
-  column-gap: 1rem;
-  width: 100%;
-}
-
-@media (min-width: 768px) {
-  .gallery-container {
-    column-count: 3; /* 中型螢幕3列 */
-  }
-}
-
-@media (min-width: 1024px) {
-  .gallery-container {
-    column-count: 4; /* 大型螢幕4列 */
-  }
-}
-
-.gallery-item {
-  display: inline-block;
-  width: 100%;
-  margin-bottom: 1rem;
-  cursor: pointer;
-}
-
-.gallery-item img {
-  width: 100%;
-  height: auto;
-  border-radius: 0.5rem;
-  transition: filter 0.3s;
-}
-
-.gallery-item:hover img {
-  filter: brightness(70%);
-}
-
-.break-inside-avoid {
-  break-inside: avoid-column;
-}
 
 body {
   background: transparent;
