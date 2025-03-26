@@ -24,9 +24,12 @@ const BreedCard = ({
               style={{ objectFit: 'cover', width: '100%', height: '100%' }}
             />
           </div>
-          <p className="font-sans text-lg text-black">{breedName}</p>
+          <p className="font-sans text-md md:text-lg text-black/85">
+            {breedName}
+          </p>
         </Link>
       </div>
+      <hr className="block sm:hidden px-10 text-gray-200" />
     </li>
   );
 };

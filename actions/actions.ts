@@ -38,7 +38,11 @@ export const getBreed = async (query?: string) => {
 
     /* 將物件轉為陣列格式 */
     let breedArray = Object.entries(breedData).map(([name, details]) => ({
-      name,
+      /* 
+        charAt(0): 取出第一個字符並轉為大寫
+        slice(1): 取出其餘部分，保持原樣
+      */
+      name: name.charAt(0).toUpperCase() + name.slice(1), // 首字母大寫,
       image: details.image,
       subreed: details.subreed,
     }));
@@ -67,18 +71,18 @@ export const getBreed = async (query?: string) => {
 /* 根據breedName取得此Breed中random的50張image */
 export const getBreedImage = async (breedName: string) => {
   try {
+    /* 轉成小寫 */
+    const lowerCaseBreedName = breedName.toLowerCase();
+
     /* 取得指定breed random 50 張images */
-    const res = await fetch(`https://dog.ceo/api/breed/${breedName}/images/random/50`, {
+    const res = await fetch(`https://dog.ceo/api/breed/${lowerCaseBreedName}/images/random/50`, {
       cache: 'force-cache', // 強制使用快取，確保結果持久化
       next: {
-        tags: [`breed-images-${breedName}`], // 添加標籤，以便未來手動失效
+        tags: [`breed-images-${lowerCaseBreedName}`], // 添加標籤，以便未來手動失效
       },
     })
 
-    if (!res.ok) {
-      throw new Error('Failed to fetch breed images');
-    }
-
+    /* 解構資料 */
     const data = await res.json();
     const images = data.message;
 

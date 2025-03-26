@@ -39,14 +39,21 @@ export default async function Home({
           <SearchForm query={query} />
         </div>
       </section>
+      <h2 className="text-black font-bold font-sans text-3xl p-5">
+        {query ? `Search result for keyword "${query}"` : ''}
+      </h2>
       <ul className="mt-5 card_grid pb-8">
-        {breeds.map((breed: Breed) => (
-          <BreedCard
-            breedName={breed.name}
-            imageUrl={breed.image}
-            key={breed.name}
-          />
-        ))}
+        {breeds.length > 0 ? (
+          breeds.map((breed: Breed) => (
+            <BreedCard
+              breedName={breed.name}
+              imageUrl={breed.image}
+              key={breed.name}
+            />
+          ))
+        ) : (
+          <p className="no-results">No articles found</p>
+        )}
       </ul>
     </>
   );
