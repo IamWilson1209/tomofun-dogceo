@@ -19,10 +19,8 @@ export default async function Home({
   const query = (await searchParams).query;
 
   /* 用server action取得指定搜尋條件的breed list */
-
   const res = await getBreed(query);
   const breeds = res.data;
-  const images = breeds.map((breed: Breed) => breed.image);
 
   return (
     <>
@@ -31,12 +29,12 @@ export default async function Home({
         <div className="relative w-full z-30 flex flex-col items-center justify-center">
           <div className="flex flex-row">
             <h1 className="text-3xl text-white font-extrabold md:text-5xl">
-              Dog Searcher
+              PawSearch
             </h1>
             <PawPrint size={20} />
           </div>
           <p className="text-lg sm:text-2xl md:text-3xl text-white font-semibold mt-3">
-            Search for your favorite dog
+            Discover your favorite dog
           </p>
           <SearchForm query={query} />
         </div>

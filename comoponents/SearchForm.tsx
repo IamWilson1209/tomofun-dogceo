@@ -36,7 +36,7 @@ const SearchForm = ({ query }: { query?: string }) => {
         name="query"
         defaultValue={query}
         className="search_input"
-        placeholder="Search for specific breed"
+        placeholder="Search for a specific breed..."
       />
       <div className="flex flex-row gap-1">
         {/* 如果有輸入值，顯示清除按鈕 */}
