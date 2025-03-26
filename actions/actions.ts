@@ -4,11 +4,36 @@ import { breeds } from "@/data/breeds";
 import { parseServerActionResponse } from "@/utils/parseServerActionResponse";
 
 
+/* 取得輪播清單的所有圖片 */
+export const getAllBreedImages = async () => {
+  try {
+    /* 複製一份資料 */
+    const breedData = breeds;
+
+    /* 只提取圖片，並過濾掉其他值 */
+    const imageArray = Object.values(breedData)
+      .map((details) => details.image)
+      .filter((image) => image);
+
+    /* 回傳結果 */
+    return parseServerActionResponse({
+      data: imageArray,
+      status: 'Success',
+    });
+  } catch (error) {
+    console.log(`Error fetching all breed images`);
+    return parseServerActionResponse({
+      error: 'Error fetching all breed images',
+      status: 'Error',
+    });
+  }
+};
+
 
 /* 根據Query取得Breed */
 export const getBreed = async (query?: string) => {
   try {
-    /* 取得所有breed name */
+    /* 複製一份資料 */
     const breedData = breeds;
 
     /* 將物件轉為陣列格式 */

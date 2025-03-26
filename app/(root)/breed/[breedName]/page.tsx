@@ -53,3 +53,24 @@ const BreedPage = async ({
   );
 };
 export default BreedPage;
+
+function BreedGallerySkeleton() {
+  return (
+    <div className="p-1 mt-16 flex-1 w-full">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1">
+        {Array(8)
+          .fill(0)
+          .map((_, index) => (
+            <div
+              key={index}
+              className={
+                [1, 4].includes(index)
+                  ? 'row-span-2 bg-gray-200 rounded-sm animate-pulse'
+                  : 'aspect-square bg-gray-200 rounded-sm animate-pulse'
+              }
+            />
+          ))}
+      </div>
+    </div>
+  );
+}
