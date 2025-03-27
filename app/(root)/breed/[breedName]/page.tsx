@@ -3,6 +3,7 @@ import BreedGallery from '@/comoponents/BreedGallery';
 import Link from 'next/link';
 import { Dog, PawPrint } from 'lucide-react';
 import RefreshButton from '@/comoponents/RefreshButton';
+import Image from 'next/image';
 
 const BreedPage = async ({
   params,
@@ -35,6 +36,15 @@ const BreedPage = async ({
 
           {/* 中間標題 - 使用 margin auto 居中 */}
           <div className="flex flex-row items-center gap-2 absolute left-1/2 transform -translate-x-1/2">
+            {/* <div className="w-[40px] h-[40px] rounded-full overflow-hidden flex-shrink-0">
+              <Image
+                src={images[0]}
+                alt={breedName}
+                width={80}
+                height={80}
+                style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+              />
+            </div> */}
             {/* <Dog className="text-black" size={30} /> */}
             <h1 className="font-extrabold font-sans text-black text-xl md:text-2xl">
               {breedName}
