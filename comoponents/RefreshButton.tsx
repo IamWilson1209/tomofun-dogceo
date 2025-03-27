@@ -1,5 +1,5 @@
-// components/RefreshButton.tsx
 'use client';
+
 import { useTransition } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { getBreedImage } from '@/actions/actions';

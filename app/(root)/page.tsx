@@ -52,7 +52,9 @@ export default async function Home({
             />
           ))
         ) : (
-          <p className="no-results">No articles found</p>
+          <p className="text-2xl font-bold text-black font-sans pl-5">
+            No Breed found...
+          </p>
         )}
       </ul>
     </>
